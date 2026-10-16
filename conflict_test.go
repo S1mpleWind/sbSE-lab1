@@ -52,3 +52,14 @@ func TestValid(t *testing.T) {
 		}
 	}
 }
+
+func TestValidSinglePeriod(t *testing.T) {
+	for _, weeks := range []Weeks{AllWeeks, OddWeeks, EvenWeeks} {
+		t.Run(string(weeks), func(t *testing.T) {
+			section := Section{Weekday: 3, Start: 2, End: 2, Weeks: weeks}
+			if !section.Valid() {
+				t.Errorf("单节课时段应当合法：%+v", section)
+			}
+		})
+	}
+}
