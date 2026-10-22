@@ -184,7 +184,7 @@ bash scripts/trace.sh ../enroll-conflict_1.0.1_linux_amd64.tar.gz . origin/main
 | 选做 | 完成情况与证据 |
 |---|---|
 | O1 容器镜像 | <未做 / 链接、镜像摘要（digest）、运行容器的主机架构> |
-| O2 缓存对反馈时间的影响 | <未做 / 预期、数据与结论> |
+| O2 缓存对反馈时间的影响 | 已完成两组各 5 次 PR CI 对照：[完整记录与分析](docs/O2-cache-experiment.md)、[逐次数据](docs/o2-cache/results.csv)。有缓存组均值 13.8 秒，无缓存组 24.8 秒；记录了缓存命中、runner 镜像差异和样本局限。[基准 PR #6](https://github.com/S1mpleWind/sbSE-lab1/pull/6) 与 [对照 PR #7](https://github.com/S1mpleWind/sbSE-lab1/pull/7) 均不合并。 |
 | O3 迁移到小组项目 | <未做 / 仓库链接> |
 
 ## 8. 成员贡献

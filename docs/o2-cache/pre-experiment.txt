@@ -1,0 +1,12 @@
+O2 测量前记录
+
+记录时间：2026-10-22T10:54:18.468491+08:00
+基线提交：989ebe3e77af41d810261a71ec4df0877ffc28e7
+
+预期：示例没有第三方依赖，预计模块下载方面的收益很小；缓存仍可能通过复用编译输出缩短 vet 和测试的准备时间。缓存恢复也有开销，整个 ci job 是否更快、节省多少秒，以两组各至少五次的实测结果为准。
+
+方法：两个临时 PR 从同一 main 提交建立，业务代码一致，唯一实验差别为 setup-go 的 cache: true/false。使用 pull_request 事件，交替运行，每组首次运行加四次 Re-run all jobs。实验 PR 保持不合并。
+
+计时：ci job completed_at - started_at，不含排队等待；另记 setup-go、vet、test、post setup-go 的步骤时长。
+
+记录：逐次列出所有运行和 attempts，记录缓存命中、runner 镜像版本、Action SHA；失败、未命中或异常值保留并注明，不按结果挑样本。
