@@ -1,6 +1,6 @@
 # 实验 1 记录：第 6 组
 
-本组使用统一示例 `enroll-conflict`，完成合并门禁、发布门禁、双版本追溯与回退，并据实记录数据和分析。GitHub 时间统一换算为北京时间（UTC+8）；提交、审批、PushEvent 和作业的秒级时间使用 GitHub API 与页面、日志交叉核对。任务 0 的完整前后对照和问题 3 的本地构建于 2026-10-21 补测，与初次实验分别注明。main 已受保护，本报告应通过 PR 提交。
+本组使用统一示例 `enroll-conflict`，完成合并门禁、发布门禁、双版本追溯与回退，并据实记录数据和分析。GitHub 时间统一换算为北京时间（UTC+8）；提交、审批、PushEvent 和作业的秒级时间使用 GitHub API 与页面、日志交叉核对。任务 0 的完整前后对照和问题 3 的本地构建于 2026-10-21 补测，与初次实验分别注明。main 已受保护，本报告通过 [PR #9](https://github.com/S1mpleWind/sbSE-lab1/pull/9) 提交，待他人审批并合入。
 
 ## 1. 基本信息
 
@@ -314,7 +314,7 @@ Actions 对照来自 [ci #14 尝试 1](https://github.com/S1mpleWind/sbSE-lab1/a
 
 ### 实验结论
 
-两轮演练表明，门禁能强制执行已编码的检查与审批要求，覆盖不足时仍会放过缺陷；新增边界测试后，同一类回归可以在合并前被拦截。squash 后的 main SHA、正式版本、构建号与 run_id 共同建立追溯路径，独立保存的摘要用于确认制品字节是否变化。固定输入和归档元数据支持可重复构建，回退则直接复用已校验的旧 Release；第 4 节的双版本运行已完成这条链路。直接推送触发 GH013 拒绝，三阶段 PR、CI 和本地验证结果证明了门禁限制与测试覆盖变化的作用。E 的最终报告 PR 尚待提交并合入，本地文档完成尚不能计作已合入的 PR 贡献。
+两轮演练表明，门禁能强制执行已编码的检查与审批要求，覆盖不足时仍会放过缺陷；新增边界测试后，同一类回归可以在合并前被拦截。squash 后的 main SHA、正式版本、构建号与 run_id 共同建立追溯路径，独立保存的摘要用于确认制品字节是否变化。固定输入和归档元数据支持可重复构建，回退则直接复用已校验的旧 Release；第 4 节的双版本运行已完成这条链路。直接推送触发 GH013 拒绝，三阶段 PR、CI 和本地验证结果证明了门禁限制与测试覆盖变化的作用。E 已发起最终报告 [PR #9](https://github.com/S1mpleWind/sbSE-lab1/pull/9)，待他人审批并合入；未合入前不计作已合入的 PR 贡献。
 
 ## 7. 选做记录
 
@@ -358,7 +358,7 @@ O3 迁移说明与验证（材料更新于 2026-10-21）：
 
 ## 8. 成员贡献
 
-按组内分工图记录 A～E 的任务；仅在下表填写 GitHub 用户名，不填写姓名。PR 归属和审批按 GitHub 实际记录：E 已审批 #3、#8，但截至本次填写尚无由 E 发起并合入的 PR，最终报告需通过 E 的新 PR 提交，合入后再补记实际编号。B 的 #6、#7 是按 O2 要求保留未合并的实验 PR，不计入已合入贡献；#8 是其已合入的 O2 报告 PR。D 的 #5 是任务 6 的补充证据 PR，不能算作 E 的报告 PR。
+按组内分工图记录 A～E 的任务；仅在下表填写 GitHub 用户名，不填写姓名。PR 归属和审批按 GitHub 实际记录：E 已审批 #3、#8，并发起本报告的 [PR #9](https://github.com/S1mpleWind/sbSE-lab1/pull/9)，待他人审批并合入，当前不计入已合入贡献。B 的 #6、#7 是按 O2 要求保留未合并的实验 PR，不计入已合入贡献；#8 是其已合入的 O2 报告 PR。D 的 #5 是任务 6 的补充证据 PR，不能算作 E 的报告 PR。
 
 | GitHub 用户名 | 发起并合入的 PR 编号 | 审批过的 PR 编号 |
 |---|---|---|
@@ -366,7 +366,7 @@ O3 迁移说明与验证（材料更新于 2026-10-21）：
 | wgy2006 | [#2](https://github.com/S1mpleWind/sbSE-lab1/pull/2)、[#8](https://github.com/S1mpleWind/sbSE-lab1/pull/8) | [#1](https://github.com/S1mpleWind/sbSE-lab1/pull/1)、[#4](https://github.com/S1mpleWind/sbSE-lab1/pull/4)、[#5](https://github.com/S1mpleWind/sbSE-lab1/pull/5) |
 | AllenTwillight05 | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3) | 暂无已提交的 APPROVED 记录 |
 | yollsplus | [#4](https://github.com/S1mpleWind/sbSE-lab1/pull/4)、[#5](https://github.com/S1mpleWind/sbSE-lab1/pull/5) | 暂无已提交的 APPROVED 记录 |
-| yangjunqiqq | 暂无；本次最终报告已在本地整理，待以本人账号发起 PR 并经他人审批合入后登记实际编号 | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3)、[#8](https://github.com/S1mpleWind/sbSE-lab1/pull/8) |
+| yangjunqiqq | 暂无已合入；已发起最终报告 [#9](https://github.com/S1mpleWind/sbSE-lab1/pull/9)，待审批并合入 | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3)、[#8](https://github.com/S1mpleWind/sbSE-lab1/pull/8) |
 
 具体分工与工作内容（按提供的图片）：
 
@@ -376,4 +376,4 @@ O3 迁移说明与验证（材料更新于 2026-10-21）：
 | wgy2006 | Task 4 第二轮、O2 | 找到现有测试未覆盖的单节课缺陷，完成“通过—补测试失败—修复通过”的三阶段演练及本地验证，保留新增测试；另完成 O2 缓存对照实验与已记录的审批 | [#2](https://github.com/S1mpleWind/sbSE-lab1/pull/2)、[#8](https://github.com/S1mpleWind/sbSE-lab1/pull/8)、第 3、5、7 节 |
 | AllenTwillight05 | Task 5 | 编写 `release.yml`，验证 Release Gate，发布 v1.0.0 | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3)、release #1/#2、v1.0.0 |
 | yollsplus | Task 6 | 提交文档小改动 PR，发布 v1.0.1，完成双版本追溯、运行、旧附件复校验与回退，并补充服务器复核记录 | [#4](https://github.com/S1mpleWind/sbSE-lab1/pull/4)、[#5](https://github.com/S1mpleWind/sbSE-lab1/pull/5)、release #3、第 4 节 |
-| yangjunqiqq | Task 7、全部文档 | 完成可重复构建补测、任务 0 缺失字段补测、CI 重跑比较、GitHub 时间与审批统计；汇总实验记录及选做材料，撰写四道分析题和实验结论，整理 LAB1.md；审批发布工作流与 O2 报告 PR | 本次本地最终报告；最终报告 PR 尚未创建/合入，不计作已完成的 PR 贡献 |
+| yangjunqiqq | Task 7、全部文档 | 完成可重复构建补测、任务 0 缺失字段补测、CI 重跑比较、GitHub 时间与审批统计；汇总实验记录及选做材料，撰写四道分析题和实验结论，整理 LAB1.md；审批发布工作流与 O2 报告 PR | 最终报告 [#9](https://github.com/S1mpleWind/sbSE-lab1/pull/9) 已发起，待审批并合入，暂不计作已合入贡献 |
