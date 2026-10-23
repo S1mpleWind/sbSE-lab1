@@ -5,12 +5,11 @@ on:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
 
-permissions:
-  contents: write
-
 jobs:
   release:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7
         with:
@@ -64,3 +63,93 @@ jobs:
             dist/*.tar.gz.sha256 \
             --title "$GITHUB_REF_NAME" \
             --generate-notes
+
+  image:
+    needs: release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download release binary
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          mkdir release-assets
+          gh release download "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern "enroll-conflict_${version}_linux_amd64.tar.gz" \
+            --pattern "enroll-conflict_${version}_linux_amd64.tar.gz.sha256" \
+            --dir release-assets
+          (
+            cd release-assets
+            sha256sum --check "enroll-conflict_${version}_linux_amd64.tar.gz.sha256"
+          )
+          tar -xzf "release-assets/enroll-conflict_${version}_linux_amd64.tar.gz" -C release-assets
+
+      - name: Log in to GitHub Container Registry
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io \
+            --username "$GITHUB_ACTOR" --password-stdin
+
+      - name: Build and push image
+        id: push
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          image="ghcr.io/${GITHUB_REPOSITORY,,}"
+          context="release-assets/enroll-conflict_${version}_linux_amd64"
+          docker buildx build \
+            --platform linux/amd64 \
+            --file "$GITHUB_WORKSPACE/Dockerfile" \
+            --build-arg "VERSION=$version" \
+            --build-arg "COMMIT=$GITHUB_SHA" \
+            --build-arg "SOURCE=https://github.com/$GITHUB_REPOSITORY" \
+            --tag "$image:$GITHUB_REF_NAME" \
+            --push \
+            --metadata-file /tmp/image-metadata.json \
+            "$context"
+          digest="$(jq -r '.["containerimage.digest"]' /tmp/image-metadata.json)"
+          test -n "$digest" && test "$digest" != null
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+
+      - name: Run image by digest and verify service
+        env:
+          IMAGE: ${{ steps.push.outputs.image }}
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          container="$(docker run --detach --platform linux/amd64 \
+            --publish 127.0.0.1:18080:8080 "$IMAGE@$DIGEST")"
+          trap 'docker rm --force "$container" >/dev/null 2>&1 || true' EXIT
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:18080/healthz; then
+              break
+            fi
+            if [ "$attempt" -eq 20 ]; then
+              docker logs "$container"
+              exit 1
+            fi
+            sleep 1
+          done
+          printf '\n'
+          curl --fail --silent http://127.0.0.1:18080/version | tee /tmp/container-version.json
+
+      - name: Record image evidence
+        env:
+          IMAGE: ${{ steps.push.outputs.image }}
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          {
+            echo "### O1 container image"
+            echo
+            echo "- Image: \`$IMAGE:$GITHUB_REF_NAME\`"
+            echo "- Digest: \`$IMAGE@$DIGEST\`"
+            echo "- Platform: \`linux/amd64\`"
+            echo "- Container host: \`$(uname -m)\`"
+            echo "- Container response: \`$(cat /tmp/container-version.json)\`"
+          } >> "$GITHUB_STEP_SUMMARY"
