@@ -31,6 +31,43 @@ dist/enroll-conflict_1.0.0_linux_amd64/enroll-conflict -version
 
 `make package` 的参数 `VERSION`、`BUILD_NO`、`COMMIT` 是制品的三个追溯标识，`RUN_ID` 用于指向具体的那次运行；未传入时分别取 `dev`、`local`、本地 `HEAD` 和 `local`，表示“未经过流水线”。
 
+## 从 Release 运行与回退
+
+以下操作在小组的 Linux x86-64 主机、已克隆的小组仓库中执行，需要 Git、curl 和 GNU tar。先确认两个 Release 都已发布，再下载附件；运行已发布的程序无需安装 Go 或重新编译。
+
+```bash
+git fetch origin main --tags
+mkdir -p dist/release
+for v in 1.0.0 1.0.1; do
+  f="enroll-conflict_${v}_linux_amd64.tar.gz"
+  url="https://github.com/S1mpleWind/sbSE-lab1/releases/download/v${v}"
+  curl -fL -o "dist/release/$f" "$url/$f"
+  curl -fL -o "dist/release/$f.sha256" "$url/$f.sha256"
+  bash scripts/trace.sh "dist/release/$f" . origin/main || exit 1
+  tar -xzf "dist/release/$f" -C dist/release
+done
+```
+
+`trace.sh` 检查附件校验和、读取 `BUILD_INFO`、确认提交在 main 的历史中，并给出提交和 Actions 运行链接。将首次下载 v1.0.0 时的 sha256 另行保存在 `LAB1.md`，发布 v1.0.1 后重新下载旧附件并与该值比较。
+
+确认 `127.0.0.1:18080` 空闲后，在 Bash 中依次运行新版和旧版。`pid` 仅记录本次启动的进程；每次退出前停止它：
+
+```bash
+for v in 1.0.1 1.0.0; do
+  ./dist/release/enroll-conflict_${v}_linux_amd64/enroll-conflict -addr 127.0.0.1:18080 &
+  pid=$!
+  trap 'kill "$pid" 2>/dev/null || true' EXIT
+  sleep 1
+  kill -0 "$pid" || exit 1
+  curl -fsS http://127.0.0.1:18080/version || exit 1
+  kill "$pid"
+  wait "$pid" 2>/dev/null || true
+  trap - EXIT
+done
+```
+
+将两次响应记录到 `LAB1.md` 第 4 节。回退使用 v1.0.0 的原始 Release 附件；已经发布的 tag 和版本号保留，修复通过新版本发布。
+
 ## 文件
 
 | 文件 | 说明 |
@@ -42,4 +79,4 @@ dist/enroll-conflict_1.0.0_linux_amd64/enroll-conflict -version
 | `Dockerfile` | 选做 O1 使用 |
 | `LAB1.md` | 小组的证据与分析记录，需要填写并提交 |
 
-仓库中没有 `.github/workflows/`：流水线由小组在实验中自行编写。
+`.github/workflows/ci.yml` 负责 PR 检查和 main 制品，`release.yml` 负责 tag 发布；发布门禁要求 tag 指向 main 历史中的提交。

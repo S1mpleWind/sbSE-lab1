@@ -34,9 +34,9 @@
 | 第二轮：仅含缺陷时仍然通过的运行 | <链接> |
 | 第二轮：补测试后失败的运行 | <链接> |
 | 第二轮：撤销缺陷后通过的运行 | <链接> |
-| 未合入分支上的 tag 被 release gate 拒绝的运行 | <链接> |
-| Release v1.0.0 | <链接> |
-| Release v1.0.1 | <链接> |
+| 未合入分支上的 tag 被 release gate 拒绝的运行 | [release #2](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/39231936952)：`v0.0.1` 指向未合入 main 的空提交 `83b5ab7`，在 `Check that the tag points to main` 步骤失败，后续构建和发布步骤均跳过，未产生 Release。 |
+| Release v1.0.0 | [v1.0.0](https://github.com/S1mpleWind/sbSE-lab1/releases/tag/v1.0.0)，发布于 2026-10-19 17:41:16（UTC+8） |
+| Release v1.0.1 | [v1.0.1](https://github.com/S1mpleWind/sbSE-lab1/releases/tag/v1.0.1)，发布于 2026-10-21 10:01:34（UTC+8） |
 
 ## 4. 追溯与运行
 
@@ -44,34 +44,80 @@
 
 | 项 | v1.0.0 | v1.0.1 |
 |---|---|---|
-| 版本号 | <填写> | <填写> |
-| 构建号 | <填写> | <填写> |
-| 提交号（SHA） | <填写> | <填写> |
-| 引入该提交的 PR | <编号与链接> | <编号与链接> |
-| 构建它的 Actions 运行（`trace.sh` 给出的链接） | <链接> | <链接> |
-| 制品 sha256（发布当时，取自 Release 里的 .sha256） | <填写> | <填写> |
+| 版本号 | `1.0.0` | `1.0.1` |
+| 构建号 | `1`（release 工作流） | `3`（release 工作流；第 2 次运行是门禁拒绝演练） |
+| 提交号（SHA） | `a845dd34214418516d01f77fbd7796498a7866da` | `52c647c0cef046d70c144a6d0c63e81461daddb7` |
+| 引入该提交的 PR | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3) | [#4](https://github.com/S1mpleWind/sbSE-lab1/pull/4)，由 `yollsplus` 发起，`wgy2006` 审批后 squash 合入 |
+| 构建它的 Actions 运行（`trace.sh` 给出的链接） | [release #1](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/39231899813) | [release #3](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/39530639353) |
+| 制品 sha256（发布当时，取自 Release 里的 .sha256） | `aeb05ee8c3a27ba4f191bb4e4d05e41c1d2ece3bacb01daa58192c2d5dcbe4df` | `d44e22d96743e5e175e59dbac49ae30bccaa2c924d4172e6b936f9f91d9c4cf5` |
 
-仅凭构建号能否唯一确定是哪次运行？v1.0.0 的构建号在 `ci` 和 `release` 的运行列表中各对应哪次运行？<填写>
+仅凭构建号不能唯一确定运行：`github.run_number` 在每个工作流中独立计数。v1.0.0 的构建号为 `1`，对应 [release #1](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/39231899813)；CI 中也有 [ci #1](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/38852616255)。`BUILD_INFO` 中的 `run_id=39231899813` 才能直接定位构建该 Release 的运行。
 
-发布 v1.0.1 之后重新下载 v1.0.0 的附件，计算得到的 sha256：<填写>。与上表中发布当时的值是否一致？<填写>
+发布 v1.0.1 之后，于 2026-10-21 10:04（UTC+8）重新下载并校验 v1.0.0 的附件，计算得到的 sha256：`aeb05ee8c3a27ba4f191bb4e4d05e41c1d2ece3bacb01daa58192c2d5dcbe4df`，与上表中发布当时的值完全一致。两个版本的归档哈希均与各自的 Release `.sha256` 一致，服务器上对两个附件执行 `trace.sh` 的退出码均为 0。
 
 `trace.sh` 输出（v1.0.0）：
 
 ```text
-<粘贴>
+== 1. 校验和
+enroll-conflict_1.0.0_linux_amd64.tar.gz: OK
+== 2. 制品里的 BUILD_INFO
+name=enroll-conflict
+version=1.0.0
+build_no=1
+run_id=39231899813
+commit=a845dd34214418516d01f77fbd7796498a7866da
+go=go1.26.9
+== 3. 提交 a845dd34214418516d01f77fbd7796498a7866da
+作者: Mingyang Cui <159035665+AllenTwillight05@users.noreply.github.com>
+时间: 2026-10-18T14:55:24+08:00
+标题: ci: add release workflow (#3)
+主干: 该提交在 origin/main 的历史上
+指向它的 tag: v1.0.0
+版本号: 1.0.0    构建号: 1
+提交页面（含关联的 PR）: https://github.com/S1mpleWind/sbSE-lab1/commit/a845dd34214418516d01f77fbd7796498a7866da
+构建它的运行: https://github.com/S1mpleWind/sbSE-lab1/actions/runs/39231899813
 ```
+
+以上命令在小组华为云 Linux x86-64 主机执行，退出码为 0。服务器直连 GitHub 克隆时发生 TLS 错误，因此从本机下载 Release 原始附件和 `.sha256`，通过 SCP 传到服务器；源码历史通过包含 main 和 v1.0.0 的 Git bundle 克隆，并将 origin 设置为小组仓库地址。服务器上的附件校验通过，校验值与本机下载值、Release `.sha256` 三者一致。现场复核目录为 `/home/sbse/lab1-d-evidence/repo`，附件位于其上一级目录。发布门禁演练使用的远程测试 tag 和临时分支已清理，失败的 Actions 记录保留。
 
 `trace.sh` 输出（v1.0.1）：
 
 ```text
-<粘贴>
+== 1. 校验和
+enroll-conflict_1.0.1_linux_amd64.tar.gz: OK
+== 2. 制品里的 BUILD_INFO
+name=enroll-conflict
+version=1.0.1
+build_no=3
+run_id=39530639353
+commit=52c647c0cef046d70c144a6d0c63e81461daddb7
+go=go1.26.9
+== 3. 提交 52c647c0cef046d70c144a6d0c63e81461daddb7
+作者: Yang Kezhuo <miner_04282024@qq.com>
+时间: 2026-10-19T18:51:30+08:00
+标题: docs: record initial release evidence and rollback procedure (#4)
+主干: 该提交在 origin/main 的历史上
+指向它的 tag: v1.0.1
+版本号: 1.0.1    构建号: 3
+提交页面（含关联的 PR）: https://github.com/S1mpleWind/sbSE-lab1/commit/52c647c0cef046d70c144a6d0c63e81461daddb7
+构建它的运行: https://github.com/S1mpleWind/sbSE-lab1/actions/runs/39530639353
 ```
 
 任务 6 第 4 步，两次 `/version` 的输出：
 
 ```text
-<运行 v1.0.1 时>
-<换回 v1.0.0 后>
+GET /version (v1.0.1): {"version":"1.0.1","commit":"52c647c0cef046d70c144a6d0c63e81461daddb7","build_no":"3","go":"go1.26.9"}
+GET /version (v1.0.0): {"version":"1.0.0","commit":"a845dd34214418516d01f77fbd7796498a7866da","build_no":"1","go":"go1.26.9"}
+```
+
+运行与回退在 2026-10-21 10:04（UTC+8）于同一台 Linux x86-64 主机完成，监听 `127.0.0.1:18080`。先运行 `/home/sbse/lab1-d-evidence/enroll-conflict_1.0.1_linux_amd64/enroll-conflict`，请求 `/version` 和 `/healthz` 后停止该进程，再启动同目录下 v1.0.0 的原始 Release 二进制并重复请求；两次 `/healthz` 均返回 `ok`。过程中没有重新构建；结束时两个演示进程均已停止。服务器仓库历史已通过新的 Git bundle 更新至 PR #4 的 main 提交，并包含两个版本的 tag。
+
+现场可在服务器上复核：
+
+```bash
+cd /home/sbse/lab1-d-evidence/repo
+bash scripts/trace.sh ../enroll-conflict_1.0.0_linux_amd64.tar.gz . origin/main
+bash scripts/trace.sh ../enroll-conflict_1.0.1_linux_amd64.tar.gz . origin/main
 ```
 
 ## 5. 数据
@@ -138,7 +184,7 @@
 | 选做 | 完成情况与证据 |
 |---|---|
 | O1 容器镜像 | <未做 / 链接、镜像摘要（digest）、运行容器的主机架构> |
-| O2 缓存对反馈时间的影响 | <未做 / 预期、数据与结论> |
+| O2 缓存对反馈时间的影响 | 已完成两组各 5 次 PR CI 对照：[完整记录与分析](docs/O2-cache-experiment.md)、[逐次数据](docs/o2-cache/results.csv)。有缓存组均值 13.8 秒，无缓存组 24.8 秒；记录了缓存命中、runner 镜像差异和样本局限。[基准 PR #6](https://github.com/S1mpleWind/sbSE-lab1/pull/6) 与 [对照 PR #7](https://github.com/S1mpleWind/sbSE-lab1/pull/7) 均不合并。 |
 | O3 迁移到小组项目 | <未做 / 仓库链接> |
 
 ## 8. 成员贡献
@@ -147,4 +193,5 @@
 
 | GitHub 用户名 | 发起并合入的 PR 编号 | 审批过的 PR 编号 |
 |---|---|---|
+| yollsplus | [#4](https://github.com/S1mpleWind/sbSE-lab1/pull/4) | 暂无 |
 | <用户名> | <编号> | <编号> |
