@@ -320,7 +320,7 @@ Actions 对照来自 [ci #14 尝试 1](https://github.com/S1mpleWind/sbSE-lab1/a
 
 | 选做 | 完成情况与证据 |
 |---|---|
-| O1 容器镜像 | 已实现并完成本地验证：[PR #10](https://github.com/S1mpleWind/sbSE-lab1/pull/10) 已合入 main，在 release 工作流中增加镜像 job，复用 Release 附件构建、推送 GHCR 镜像并按 digest 运行检查。线上镜像发布尚未执行，实际 GHCR 镜像链接、digest、容器主机架构及运行链接待下一次版本 tag 发布后补齐，详见下方记录 |
+| O1 容器镜像 | 已完成：[PR #10](https://github.com/S1mpleWind/sbSE-lab1/pull/10) 合入后发布 v1.0.2；[GHCR 镜像](https://github.com/S1mpleWind/sbSE-lab1/pkgs/container/sbse-lab1)、完整 digest、成功的 image job、按 digest 运行输出、主机架构和匿名拉取结果见下方记录。 |
 | O2 缓存对反馈时间的影响 | 已完成：有缓存 [PR #6](https://github.com/S1mpleWind/sbSE-lab1/pull/6)、无缓存 [PR #7](https://github.com/S1mpleWind/sbSE-lab1/pull/7) 各运行 5 次，实验 PR 均保留未合并；job 平均用时分别为 13.8 秒、24.8 秒。[报告 PR #8](https://github.com/S1mpleWind/sbSE-lab1/pull/8) 已合入，完整方法与原始数据见 [O2 实验报告](https://github.com/S1mpleWind/sbSE-lab1/blob/242bacffd182bd28ab0f3b0f2bf18fa71ffd2459/docs/O2-cache-experiment.md)，本节列出全部测量与结论 |
 | O3 迁移到小组项目 | 已完成核心流程迁移至 [IssueScope](https://github.com/S1mpleWind/IssueScope)；[O3 证据材料](https://github.com/S1mpleWind/IssueScope/blob/course-material/docs/O3-CI-release-evidence.md)记录合并门禁、CI 失败与修复、双版本发布及追溯，迁移差异见下表 |
 
@@ -334,9 +334,13 @@ O1 容器镜像（核对日期：2026-10-24）：
 | 按摘要运行与检查 | 从 buildx 元数据读取 `containerimage.digest`，以 `$IMAGE@$DIGEST` 启动容器，将容器 8080 端口映射至 `127.0.0.1:18080`，检查 `/healthz`、读取 `/version`，结束后清理容器 |
 | 本地验证 | PR #10 记录使用 v1.0.1 Release 附件验证通过，`/version` 返回提交 `52c647c0cef046d70c144a6d0c63e81461daddb7`、构建号 `3`；该记录未注明本地容器主机架构 |
 | main 检查 | 合入后的 [ci #23](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/40063508531) 成功；该运行是常规 CI，不是 tag 触发的镜像发布运行 |
-| 线上验收证据 | 当前 Release 仍为 v1.0.0、v1.0.1，尚无包含 `image` job 的发布运行。实际镜像 digest、按摘要运行的线上结果和容器主机架构尚待记录；工作流会把镜像引用、`linux/amd64`、`uname -m` 和版本响应写入 Actions summary。镜像匿名拉取是否可用也待验证 |
+| 实际镜像与完整 digest | [GHCR package](https://github.com/S1mpleWind/sbSE-lab1/pkgs/container/sbse-lab1)，tag `v1.0.2`；镜像 `ghcr.io/s1mplewind/sbse-lab1:v1.0.2`；digest `sha256:bf79f8e56ac5f04f22433f929503bfee1dd9fe86f810535c3626854f9fad9dd5` |
+| 成功的 Actions 运行 | [release #4](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/40095099869)，release 与 image 两个 job 均成功；[image job](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/40095099869/job/120875691217) |
+| 按 digest 启动与接口输出 | 运行引用：`ghcr.io/s1mplewind/sbse-lab1@sha256:bf79f8e56ac5f04f22433f929503bfee1dd9fe86f810535c3626854f9fad9dd5`；`/healthz`：`ok`；`/version`：`{"version":"1.0.2","commit":"d6514746bc18b04a07fb04da71cb3080dd4c2bbb","build_no":"4","go":"go1.26.9"}` |
+| 容器主机架构 | `x86_64`；运行于 GitHub Actions `ubuntu-24.04` runner，镜像平台为 `linux/amd64` |
+| 匿名拉取验证 | 使用独立、无凭据的 Docker 配置执行 `docker pull ghcr.io/s1mplewind/sbse-lab1@sha256:bf79f8e56ac5f04f22433f929503bfee1dd9fe86f810535c3626854f9fad9dd5` 成功；package 页面匿名 HTTP 状态为 200 |
 
-镜像 job 放在同一个 tag 工作流中，是因为本项目通过 `GITHUB_TOKEN` 创建 Release，该操作产生的发布事件不会再触发另一个工作流；以 `needs: release` 串联两个 job，可在附件生成后继续构建镜像。相关机制见 [GitHub 的 GITHUB_TOKEN 文档](https://docs.github.com/en/actions/concepts/security/github_token)。现有 v1.0.0、v1.0.1 的 tag 指向新增镜像 job 之前的提交，重跑旧工作流不能使用新配置，需要从包含该实现的 main 提交发布新版本后，才能取得上述线上证据。
+镜像 job 放在同一个 tag 工作流中，是因为本项目通过 `GITHUB_TOKEN` 创建 Release，该操作产生的发布事件不会再触发另一个工作流；以 `needs: release` 串联两个 job，可在附件生成后继续构建镜像。相关机制见 [GitHub 的 GITHUB_TOKEN 文档](https://docs.github.com/en/actions/concepts/security/github_token)。v1.0.0、v1.0.1 的 tag 指向新增镜像 job 之前的提交，因此从合入后的 main 发布 v1.0.2，完成了线上镜像验收。
 
 O2 缓存对照实验（2026-10-22）：
 
