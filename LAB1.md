@@ -320,9 +320,23 @@ Actions 对照来自 [ci #14 尝试 1](https://github.com/S1mpleWind/sbSE-lab1/a
 
 | 选做 | 完成情况与证据 |
 |---|---|
-| O1 容器镜像 | 未做；仓库保留示例 Dockerfile，但没有构建、推送和运行镜像的证据，不将模板文件视为完成 |
+| O1 容器镜像 | 已实现并完成本地验证：[PR #10](https://github.com/S1mpleWind/sbSE-lab1/pull/10) 已合入 main，在 release 工作流中增加镜像 job，复用 Release 附件构建、推送 GHCR 镜像并按 digest 运行检查。线上镜像发布尚未执行，实际 GHCR 镜像链接、digest、容器主机架构及运行链接待下一次版本 tag 发布后补齐，详见下方记录 |
 | O2 缓存对反馈时间的影响 | 已完成：有缓存 [PR #6](https://github.com/S1mpleWind/sbSE-lab1/pull/6)、无缓存 [PR #7](https://github.com/S1mpleWind/sbSE-lab1/pull/7) 各运行 5 次，实验 PR 均保留未合并；job 平均用时分别为 13.8 秒、24.8 秒。[报告 PR #8](https://github.com/S1mpleWind/sbSE-lab1/pull/8) 已合入，完整方法与原始数据见 [O2 实验报告](https://github.com/S1mpleWind/sbSE-lab1/blob/242bacffd182bd28ab0f3b0f2bf18fa71ffd2459/docs/O2-cache-experiment.md)，本节列出全部测量与结论 |
 | O3 迁移到小组项目 | 已完成核心流程迁移至 [IssueScope](https://github.com/S1mpleWind/IssueScope)；[O3 证据材料](https://github.com/S1mpleWind/IssueScope/blob/course-material/docs/O3-CI-release-evidence.md)记录合并门禁、CI 失败与修复、双版本发布及追溯，迁移差异见下表 |
+
+O1 容器镜像（核对日期：2026-10-24）：
+
+| 项 | 实施情况与证据 |
+|---|---|
+| 实现与合入 | [PR #10](https://github.com/S1mpleWind/sbSE-lab1/pull/10)，由 `AllenTwillight05` 发起、`yangjunqiqq` 审批，于 2026-10-24 12:44:04（UTC+8）合入；main 提交 `3ca9198a2c6627eb8d030eb7d7c66163431d2b70` |
+| 工作流 | [release.yml](https://github.com/S1mpleWind/sbSE-lab1/blob/3ca9198a2c6627eb8d030eb7d7c66163431d2b70/.github/workflows/release.yml) 增加 `image` job，通过 `needs: release` 等待正式附件生成；下载 tar.gz 与 `.sha256`，校验后解压，再使用仓库 Dockerfile 构建镜像，镜像内不重新编译 |
+| 镜像与平台 | 目标仓库为 `ghcr.io/s1mplewind/sbse-lab1`，tag 与 Release tag 一致；构建平台显式指定 `linux/amd64`，镜像包含已发布的二进制与 BUILD_INFO |
+| 按摘要运行与检查 | 从 buildx 元数据读取 `containerimage.digest`，以 `$IMAGE@$DIGEST` 启动容器，将容器 8080 端口映射至 `127.0.0.1:18080`，检查 `/healthz`、读取 `/version`，结束后清理容器 |
+| 本地验证 | PR #10 记录使用 v1.0.1 Release 附件验证通过，`/version` 返回提交 `52c647c0cef046d70c144a6d0c63e81461daddb7`、构建号 `3`；该记录未注明本地容器主机架构 |
+| main 检查 | 合入后的 [ci #23](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/40063508531) 成功；该运行是常规 CI，不是 tag 触发的镜像发布运行 |
+| 线上验收证据 | 当前 Release 仍为 v1.0.0、v1.0.1，尚无包含 `image` job 的发布运行。实际镜像 digest、按摘要运行的线上结果和容器主机架构尚待记录；工作流会把镜像引用、`linux/amd64`、`uname -m` 和版本响应写入 Actions summary。镜像匿名拉取是否可用也待验证 |
+
+镜像 job 放在同一个 tag 工作流中，是因为本项目通过 `GITHUB_TOKEN` 创建 Release，该操作产生的发布事件不会再触发另一个工作流；以 `needs: release` 串联两个 job，可在附件生成后继续构建镜像。相关机制见 [GitHub 的 GITHUB_TOKEN 文档](https://docs.github.com/en/actions/concepts/security/github_token)。现有 v1.0.0、v1.0.1 的 tag 指向新增镜像 job 之前的提交，重跑旧工作流不能使用新配置，需要从包含该实现的 main 提交发布新版本后，才能取得上述线上证据。
 
 O2 缓存对照实验（2026-10-22）：
 
@@ -358,15 +372,15 @@ O3 迁移说明与验证（材料更新于 2026-10-21）：
 
 ## 8. 成员贡献
 
-按组内分工图记录 A～E 的任务；仅在下表填写 GitHub 用户名，不填写姓名。PR 归属和审批按 GitHub 实际记录：E 已审批 #3、#8，并发起本报告的 [PR #9](https://github.com/S1mpleWind/sbSE-lab1/pull/9)，待他人审批并合入，当前不计入已合入贡献。B 的 #6、#7 是按 O2 要求保留未合并的实验 PR，不计入已合入贡献；#8 是其已合入的 O2 报告 PR。D 的 #5 是任务 6 的补充证据 PR，不能算作 E 的报告 PR。
+按组内分工图记录 A～E 的任务；仅在下表填写 GitHub 用户名，不填写姓名。PR 归属和审批按 GitHub 实际记录：E 已审批 #3、#8、#10，并发起本报告的 [PR #9](https://github.com/S1mpleWind/sbSE-lab1/pull/9)，待他人审批并合入，当前不计入已合入贡献。B 的 #6、#7 是按 O2 要求保留未合并的实验 PR，不计入已合入贡献；#8 是其已合入的 O2 报告 PR。C 的 #10 为已合入的 O1 镜像工作流实现。D 的 #5 是任务 6 的补充证据 PR，不能算作 E 的报告 PR。
 
 | GitHub 用户名 | 发起并合入的 PR 编号 | 审批过的 PR 编号 |
 |---|---|---|
 | S1mpleWind | [#1](https://github.com/S1mpleWind/sbSE-lab1/pull/1) | [#2](https://github.com/S1mpleWind/sbSE-lab1/pull/2) |
 | wgy2006 | [#2](https://github.com/S1mpleWind/sbSE-lab1/pull/2)、[#8](https://github.com/S1mpleWind/sbSE-lab1/pull/8) | [#1](https://github.com/S1mpleWind/sbSE-lab1/pull/1)、[#4](https://github.com/S1mpleWind/sbSE-lab1/pull/4)、[#5](https://github.com/S1mpleWind/sbSE-lab1/pull/5) |
-| AllenTwillight05 | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3) | 暂无已提交的 APPROVED 记录 |
+| AllenTwillight05 | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3)、[#10](https://github.com/S1mpleWind/sbSE-lab1/pull/10) | 暂无已提交的 APPROVED 记录 |
 | yollsplus | [#4](https://github.com/S1mpleWind/sbSE-lab1/pull/4)、[#5](https://github.com/S1mpleWind/sbSE-lab1/pull/5) | 暂无已提交的 APPROVED 记录 |
-| yangjunqiqq | 暂无已合入；已发起最终报告 [#9](https://github.com/S1mpleWind/sbSE-lab1/pull/9)，待审批并合入 | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3)、[#8](https://github.com/S1mpleWind/sbSE-lab1/pull/8) |
+| yangjunqiqq | 暂无已合入；已发起最终报告 [#9](https://github.com/S1mpleWind/sbSE-lab1/pull/9)，待审批并合入 | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3)、[#8](https://github.com/S1mpleWind/sbSE-lab1/pull/8)、[#10](https://github.com/S1mpleWind/sbSE-lab1/pull/10) |
 
 具体分工与工作内容（按提供的图片）：
 
@@ -374,6 +388,6 @@ O3 迁移说明与验证（材料更新于 2026-10-21）：
 |---|---|---|---|
 | S1mpleWind（组长） | Task 0–3、Task 4 第一轮 | 负责本地基线、仓库与成员、CI 和规则集；第一轮引入现有测试能发现的周次缺陷，经历 CI 失败、修复、审批与合入，完成直接推送拒绝验证与第一轮时间记录 | [#1](https://github.com/S1mpleWind/sbSE-lab1/pull/1)、第 2、3、5 节；任务 0 的完整前后对照见第 2 节补测 |
 | wgy2006 | Task 4 第二轮、O2 | 找到现有测试未覆盖的单节课缺陷，完成“通过—补测试失败—修复通过”的三阶段演练及本地验证，保留新增测试；另完成 O2 缓存对照实验与已记录的审批 | [#2](https://github.com/S1mpleWind/sbSE-lab1/pull/2)、[#8](https://github.com/S1mpleWind/sbSE-lab1/pull/8)、第 3、5、7 节 |
-| AllenTwillight05 | Task 5 | 编写 `release.yml`，验证 Release Gate，发布 v1.0.0 | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3)、release #1/#2、v1.0.0 |
+| AllenTwillight05 | Task 5、O1 | 编写 `release.yml`，验证 Release Gate，发布 v1.0.0；增加复用 Release 附件的 GHCR 镜像 job，完成本地容器验证，线上镜像证据待新版本发布生成 | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3)、[#10](https://github.com/S1mpleWind/sbSE-lab1/pull/10)、release #1/#2、v1.0.0、第 7 节 |
 | yollsplus | Task 6 | 提交文档小改动 PR，发布 v1.0.1，完成双版本追溯、运行、旧附件复校验与回退，并补充服务器复核记录 | [#4](https://github.com/S1mpleWind/sbSE-lab1/pull/4)、[#5](https://github.com/S1mpleWind/sbSE-lab1/pull/5)、release #3、第 4 节 |
-| yangjunqiqq | Task 7、全部文档 | 完成可重复构建补测、任务 0 缺失字段补测、CI 重跑比较、GitHub 时间与审批统计；汇总实验记录及选做材料，撰写四道分析题和实验结论，整理 LAB1.md；审批发布工作流与 O2 报告 PR | 最终报告 [#9](https://github.com/S1mpleWind/sbSE-lab1/pull/9) 已发起，待审批并合入，暂不计作已合入贡献 |
+| yangjunqiqq | Task 7、全部文档 | 完成可重复构建补测、任务 0 缺失字段补测、CI 重跑比较、GitHub 时间与审批统计；汇总实验记录及选做材料，撰写四道分析题和实验结论，整理 LAB1.md；审批发布工作流、O2 报告与 O1 镜像工作流 PR | 最终报告 [#9](https://github.com/S1mpleWind/sbSE-lab1/pull/9) 已发起，待审批并合入，暂不计作已合入贡献 |
