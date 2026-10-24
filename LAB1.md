@@ -183,7 +183,7 @@ bash scripts/trace.sh ../enroll-conflict_1.0.1_linux_amd64.tar.gz . origin/main
 
 | 选做 | 完成情况与证据 |
 |---|---|
-| O1 容器镜像 | <未做 / 链接、镜像摘要（digest）、运行容器的主机架构> |
+| O1 容器镜像 | 已在 `.github/workflows/release.yml` 增加发布后镜像 job：校验并解压 Release 附件、用仓库 `Dockerfile` 构建并推送 `linux/amd64` 镜像，再按 digest 启动容器检查 `/healthz` 与 `/version`；digest、runner 主机架构和容器版本响应写入 Actions summary。本地以 v1.0.1 Release 附件验证通过，`/version` 返回提交 `52c647c0cef046d70c144a6d0c63e81461daddb7`、构建号 `3`。工作流尚未在 GitHub 上执行，需合入后由下一版本 tag 生成并补记 GHCR 镜像链接、digest 与 Actions 运行链接。 |
 | O2 缓存对反馈时间的影响 | 已完成两组各 5 次 PR CI 对照：[完整记录与分析](docs/O2-cache-experiment.md)、[逐次数据](docs/o2-cache/results.csv)。有缓存组均值 13.8 秒，无缓存组 24.8 秒；记录了缓存命中、runner 镜像差异和样本局限。[基准 PR #6](https://github.com/S1mpleWind/sbSE-lab1/pull/6) 与 [对照 PR #7](https://github.com/S1mpleWind/sbSE-lab1/pull/7) 均不合并。 |
 | O3 迁移到小组项目 | <未做 / 仓库链接> |
 
