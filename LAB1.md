@@ -1,6 +1,6 @@
 # 实验 1 记录：第 6 组
 
-本组使用统一示例 `enroll-conflict`，完成合并门禁、发布门禁、双版本追溯与回退，并据实记录数据和分析。GitHub 时间统一换算为北京时间（UTC+8）；提交、审批、PushEvent 和作业的秒级时间使用 GitHub API 与页面、日志交叉核对。任务 0 的完整前后对照和问题 3 的本地构建于 2026-10-21 补测，与初次实验分别注明。main 已受保护，本报告通过 [PR #9](https://github.com/S1mpleWind/sbSE-lab1/pull/9) 提交，待他人审批并合入。
+本组使用统一示例 `enroll-conflict`，完成合并门禁、发布门禁、双版本追溯与回退，并据实记录数据和分析。GitHub 时间统一换算为北京时间（UTC+8）；提交、审批、PushEvent 和作业的秒级时间使用 GitHub API 与页面、日志交叉核对。任务 0 的完整前后对照和问题 3 的本地构建于 2026-10-21 补测，与初次实验分别注明。main 已受保护，最终报告已通过 [PR #9](https://github.com/S1mpleWind/sbSE-lab1/pull/9) 于 2026-10-24 19:38:15（UTC+8）合入；O1 线上验收记录通过 [PR #11](https://github.com/S1mpleWind/sbSE-lab1/pull/11) 于 2026-10-25 00:40:58（UTC+8）合入。本次核对已同步上述状态和贡献记录。
 
 ## 1. 基本信息
 
@@ -11,6 +11,8 @@
 | 代码载体 | 统一示例 `enroll-conflict`，Go，功能为教学班上课时段冲突检测 |
 | runner 与语言版本 | GitHub Actions：`ubuntu-24.04`（x64），Go `1.26.9`；第二轮本地验证：macOS、`darwin/arm64`、Go `1.26.9`；本地构建补测：WSL2 Ubuntu 24.04、Linux `6.6.87.2-microsoft-standard-WSL2`、`linux/amd64`、Go `1.26.9` |
 | 合并方式 | squash；仓库仅启用 squash 合并，合并后自动删除分支，PR #1～#5 的 main 历史与此一致 |
+
+环境说明：指导书约定在同一台组内 Linux 主机完成本地构建、追溯和运行。当前构建补测在 WSL2 完成，第 4 节追溯与运行在华为云 Linux 主机完成，二者为不同主机；尚无在同一台答辩服务器完成 Task 0 和问题 3 的补测记录。本报告保留各自的实际环境与输出，不将其表述为同机完成。该差异属于现场验收时需要说明的事项，是否影响评分由教师判断。
 
 ## 2. 任务 0：本地基线
 
@@ -192,6 +194,8 @@ bash scripts/trace.sh ../enroll-conflict_1.0.1_linux_amd64.tar.gz . origin/main
 
 以下时间均为北京时间（UTC+8）。PR 创建与合入时间来自 PR 页面/API；提交时间取提交的 committer 时间；实际推送时间取 GitHub 仓库事件中的 PushEvent，避免把本地提交时间当作服务器收到推送的时间。运行结束按该次运行完成时的 `updated_at` 记录，作业 `completed_at` 偶尔早 1 秒；下表始终使用同一口径。
 
+修复推送的[原始 PushEvent JSON](docs/evidence/pr1-fix-push-event.json)已固定保存：事件 ID 为 `24253948738`，`created_at=2026-10-16T05:37:27Z`，换算为北京时间 13:37:27；`ref=refs/heads/test/gate-round1`，`head=54724f5dd965acd4718ea0c797f85a00402e7c8c`。该文件保留 GitHub API 返回的事件对象字段，便于在滚动事件列表更新后继续复核。
+
 第一轮 gate 演练的时间线（2026-10-16）：
 
 | 事件 | 时间 | 链接 |
@@ -201,7 +205,7 @@ bash scripts/trace.sh ../enroll-conflict_1.0.1_linux_amd64.tar.gz . origin/main
 | 第一次 `ci` 开始 | 13:36:24 | [ci #2](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/38856650142) |
 | 第一次 `ci` 失败（运行结束） | 13:36:40 | [ci #2](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/38856650142) |
 | 完成修复提交 | 13:37:23 | [54724f5](https://github.com/S1mpleWind/sbSE-lab1/commit/54724f5dd965acd4718ea0c797f85a00402e7c8c) |
-| 推送修复提交（PushEvent） | 13:37:27 | [仓库事件 API](https://api.github.com/repos/S1mpleWind/sbSE-lab1/events?per_page=100)，`ref=refs/heads/test/gate-round1`、`head=54724f5…` |
+| 推送修复提交（PushEvent） | 13:37:27 | [固定保存的事件 JSON](docs/evidence/pr1-fix-push-event.json)，事件 `24253948738`，`ref=refs/heads/test/gate-round1`、`head=54724f5…` |
 | 修复后的 `ci` 开始 | 13:37:32 | [ci #3](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/38856745614) |
 | `ci` 通过（运行结束） | 13:37:42 | [ci #3](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/38856745614) |
 | 另一位组员批准 | 13:48:57 | [wgy2006 的审批](https://github.com/S1mpleWind/sbSE-lab1/pull/1#pullrequestreview-5543572544) |
@@ -218,7 +222,7 @@ bash scripts/trace.sh ../enroll-conflict_1.0.1_linux_amd64.tar.gz . origin/main
 | [ci #6](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/38860537459) | 14:19:17 | 14:19:27 | 10 秒 | failure |
 | [ci #7](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/38860647442) | 14:20:27 | 14:20:38 | 11 秒 | success |
 
-提交到发布的间隔：以 PR 中第一个提交到**首个包含该 PR 的正式 Release**的发布时间相减，不以 PR 创建或 main 的 squash 提交代替第一个提交；因此三个 PR 都对应 v1.0.0。PR #4 另作补充，PR #5 尚未进入已发布版本，不将 v1.0.1 误配给 #5。
+提交到发布的间隔：以 PR 中第一个提交到**首个包含该 PR 的正式 Release**的发布时间相减，不以 PR 创建或 main 的 squash 提交代替第一个提交；因此三个 PR 都对应 v1.0.0。PR #4 另作补充。PR #5 未包含在 v1.0.1 中，后续已随 v1.0.2 发布。
 
 | PR | 第一个提交的时间 | 合入时间 | 对应 Release 的发布时间 | 提交到发布的间隔 |
 |---|---|---|---|---|
@@ -308,13 +312,13 @@ Actions 对照来自 [ci #14 尝试 1](https://github.com/S1mpleWind/sbSE-lab1/a
 
 **问题 4：发布与回退。**
 
-所用数据：第 4 节的两次 `trace.sh`、`/version` 与旧包复校验记录；v1.0.0 归档摘要 `aeb05ee8c3a27ba4f191bb4e4d05e41c1d2ece3bacb01daa58192c2d5dcbe4df`；问题 3 的五次构建；本组两个 Release 的 API 字段均为 `immutable=false`，不能声称已启用不可变发布。
+所用数据：第 4 节的两次 `trace.sh`、`/version` 与旧包复校验记录；v1.0.0 归档摘要 `aeb05ee8c3a27ba4f191bb4e4d05e41c1d2ece3bacb01daa58192c2d5dcbe4df`；问题 3 的五次构建；本题涉及的 v1.0.0、v1.0.1 两个 Release 的 API 字段均为 `immutable=false`，不能声称已启用不可变发布。
 
-若 v1.0.1 上线后发现缺陷，应按第 4 节的实际过程停止新版、切回已保存并校验过的 v1.0.0 原始附件，随后通过新 PR 修复、测试和审批，以新版本例如 v1.0.2 发布，并在 v1.0.1 的说明中记录问题。不应删除 v1.0.1 的 tag 后复用同一版本号，因为这会让同名版本对应不同字节，破坏下载缓存、部署审计和故障定位时的共同依据。任务 6 实际运行的回退文件是 `/home/sbse/lab1-d-evidence/enroll-conflict_1.0.0_linux_amd64/enroll-conflict`，来自原始 v1.0.0 Release 归档，无需重新构建；两次 `/version` 从 `1.0.1 / 52c647c… / build_no=3` 变成 `1.0.0 / a845dd3… / build_no=1`，与两份 BUILD_INFO 一致。若改为从 v1.0.0 源码重建，只有工具链、构建参数、Git/VCS 状态、依赖与归档条件都与原发布一致时才有望得到原字节，问题 3 已说明换构建号、工作区变脏或归档时间变化都会改变结果，因此回退优先复用原附件。若有人同时替换附件和配套 `.sha256`，并保持 BUILD_INFO 中的提交仍在 main 上，现有 `trace.sh` 仍可能通过，因为它不拿可信旧摘要对照，也不验证二进制确实由声称的源码构成。第 4 节独立记录的原始 sha256 能揭示被替换包与原包不一致，前提是报告中的旧值本身可信且未被一起篡改。GitHub 的 [Immutable releases](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases) 可锁定已发布附件及关联 tag，并生成发布证明，适合加强这种保证；本组当前未启用，且这个结论仍以完整可信的校验记录、兼容的运行环境以及没有不可逆数据迁移等回退障碍为条件。
+若 v1.0.1 上线后发现缺陷，应按第 4 节的实际过程停止新版、切回已保存并校验过的 v1.0.0 原始附件，随后通过新 PR 修复、测试和审批，以尚未使用的新版本号（例如后续 v1.0.3）发布，并在 v1.0.1 的说明中记录问题。不应删除 v1.0.1 的 tag 后复用同一版本号，因为这会让同名版本对应不同字节，破坏下载缓存、部署审计和故障定位时的共同依据。任务 6 实际运行的回退文件是 `/home/sbse/lab1-d-evidence/enroll-conflict_1.0.0_linux_amd64/enroll-conflict`，来自原始 v1.0.0 Release 归档，无需重新构建；两次 `/version` 从 `1.0.1 / 52c647c… / build_no=3` 变成 `1.0.0 / a845dd3… / build_no=1`，与两份 BUILD_INFO 一致。若改为从 v1.0.0 源码重建，只有工具链、构建参数、Git/VCS 状态、依赖与归档条件都与原发布一致时才有望得到原字节，问题 3 已说明换构建号、工作区变脏或归档时间变化都会改变结果，因此回退优先复用原附件。若有人同时替换附件和配套 `.sha256`，并保持 BUILD_INFO 中的提交仍在 main 上，现有 `trace.sh` 仍可能通过，因为它不拿可信旧摘要对照，也不验证二进制确实由声称的源码构成。第 4 节独立记录的原始 sha256 能揭示被替换包与原包不一致，前提是报告中的旧值本身可信且未被一起篡改。GitHub 的 [Immutable releases](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases) 可锁定已发布附件及关联 tag，并生成发布证明，适合加强这种保证；本题涉及的两个旧版本未受该保护，且这个结论仍以完整可信的校验记录、兼容的运行环境以及没有不可逆数据迁移等回退障碍为条件。
 
 ### 实验结论
 
-两轮演练表明，门禁能强制执行已编码的检查与审批要求，覆盖不足时仍会放过缺陷；新增边界测试后，同一类回归可以在合并前被拦截。squash 后的 main SHA、正式版本、构建号与 run_id 共同建立追溯路径，独立保存的摘要用于确认制品字节是否变化。固定输入和归档元数据支持可重复构建，回退则直接复用已校验的旧 Release；第 4 节的双版本运行已完成这条链路。直接推送触发 GH013 拒绝，三阶段 PR、CI 和本地验证结果证明了门禁限制与测试覆盖变化的作用。E 已发起最终报告 [PR #9](https://github.com/S1mpleWind/sbSE-lab1/pull/9)，待他人审批并合入；未合入前不计作已合入的 PR 贡献。
+两轮演练表明，门禁能强制执行已编码的检查与审批要求，覆盖不足时仍会放过缺陷；新增边界测试后，同一类回归可以在合并前被拦截。squash 后的 main SHA、正式版本、构建号与 run_id 共同建立追溯路径，独立保存的摘要用于确认制品字节是否变化。固定输入和归档元数据支持可重复构建，回退则直接复用已校验的旧 Release；第 4 节的双版本运行已完成这条链路。直接推送触发 GH013 拒绝，三阶段 PR、CI 和本地验证结果证明了门禁限制与测试覆盖变化的作用。E 的最终报告 [PR #9](https://github.com/S1mpleWind/sbSE-lab1/pull/9) 已经 S1mpleWind 审批并合入，五位成员均已有本人发起并合入的 PR。
 
 ## 7. 选做记录
 
@@ -324,7 +328,7 @@ Actions 对照来自 [ci #14 尝试 1](https://github.com/S1mpleWind/sbSE-lab1/a
 | O2 缓存对反馈时间的影响 | 已完成：有缓存 [PR #6](https://github.com/S1mpleWind/sbSE-lab1/pull/6)、无缓存 [PR #7](https://github.com/S1mpleWind/sbSE-lab1/pull/7) 各运行 5 次，实验 PR 均保留未合并；job 平均用时分别为 13.8 秒、24.8 秒。[报告 PR #8](https://github.com/S1mpleWind/sbSE-lab1/pull/8) 已合入，完整方法与原始数据见 [O2 实验报告](https://github.com/S1mpleWind/sbSE-lab1/blob/242bacffd182bd28ab0f3b0f2bf18fa71ffd2459/docs/O2-cache-experiment.md)，本节列出全部测量与结论 |
 | O3 迁移到小组项目 | 已完成核心流程迁移至 [IssueScope](https://github.com/S1mpleWind/IssueScope)；[O3 证据材料](https://github.com/S1mpleWind/IssueScope/blob/course-material/docs/O3-CI-release-evidence.md)记录合并门禁、CI 失败与修复、双版本发布及追溯，迁移差异见下表 |
 
-O1 容器镜像（核对日期：2026-10-24）：
+O1 容器镜像（核对日期：2026-10-25）：
 
 | 项 | 实施情况与证据 |
 |---|---|
@@ -332,8 +336,9 @@ O1 容器镜像（核对日期：2026-10-24）：
 | 工作流 | [release.yml](https://github.com/S1mpleWind/sbSE-lab1/blob/3ca9198a2c6627eb8d030eb7d7c66163431d2b70/.github/workflows/release.yml) 增加 `image` job，通过 `needs: release` 等待正式附件生成；下载 tar.gz 与 `.sha256`，校验后解压，再使用仓库 Dockerfile 构建镜像，镜像内不重新编译 |
 | 镜像与平台 | 目标仓库为 `ghcr.io/s1mplewind/sbse-lab1`，tag 与 Release tag 一致；构建平台显式指定 `linux/amd64`，镜像包含已发布的二进制与 BUILD_INFO |
 | 按摘要运行与检查 | 从 buildx 元数据读取 `containerimage.digest`，以 `$IMAGE@$DIGEST` 启动容器，将容器 8080 端口映射至 `127.0.0.1:18080`，检查 `/healthz`、读取 `/version`，结束后清理容器 |
-| 本地验证 | PR #10 记录使用 v1.0.1 Release 附件验证通过，`/version` 返回提交 `52c647c0cef046d70c144a6d0c63e81461daddb7`、构建号 `3`；该记录未注明本地容器主机架构 |
+| 本地验证 | PR #10 记录使用 v1.0.1 Release 附件验证通过，`/version` 返回提交 `52c647c0cef046d70c144a6d0c63e81461daddb7`、构建号 `3`；后续 v1.0.2 的线上容器主机架构及接口输出见下方验收记录 |
 | main 检查 | 合入后的 [ci #23](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/40063508531) 成功；该运行是常规 CI，不是 tag 触发的镜像发布运行 |
+| 验收版本 | [v1.0.2](https://github.com/S1mpleWind/sbSE-lab1/releases/tag/v1.0.2)，发布于 2026-10-24 20:43:51（UTC+8），提交 `d6514746bc18b04a07fb04da71cb3080dd4c2bbb`，构建号 `4` |
 | 实际镜像与完整 digest | [GHCR package](https://github.com/S1mpleWind/sbSE-lab1/pkgs/container/sbse-lab1)，tag `v1.0.2`；镜像 `ghcr.io/s1mplewind/sbse-lab1:v1.0.2`；digest `sha256:bf79f8e56ac5f04f22433f929503bfee1dd9fe86f810535c3626854f9fad9dd5` |
 | 成功的 Actions 运行 | [release #4](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/40095099869)，release 与 image 两个 job 均成功；[image job](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/40095099869/job/120875691217) |
 | 按 digest 启动与接口输出 | 运行引用：`ghcr.io/s1mplewind/sbse-lab1@sha256:bf79f8e56ac5f04f22433f929503bfee1dd9fe86f810535c3626854f9fad9dd5`；`/healthz`：`ok`；`/version`：`{"version":"1.0.2","commit":"d6514746bc18b04a07fb04da71cb3080dd4c2bbb","build_no":"4","go":"go1.26.9"}` |
@@ -376,15 +381,15 @@ O3 迁移说明与验证（材料更新于 2026-10-21）：
 
 ## 8. 成员贡献
 
-按组内分工图记录 A～E 的任务；仅在下表填写 GitHub 用户名，不填写姓名。PR 归属和审批按 GitHub 实际记录：E 已审批 #3、#8、#10，并发起本报告的 [PR #9](https://github.com/S1mpleWind/sbSE-lab1/pull/9)，待他人审批并合入，当前不计入已合入贡献。B 的 #6、#7 是按 O2 要求保留未合并的实验 PR，不计入已合入贡献；#8 是其已合入的 O2 报告 PR。C 的 #10 为已合入的 O1 镜像工作流实现。D 的 #5 是任务 6 的补充证据 PR，不能算作 E 的报告 PR。
+按组内分工图记录 A～E 的任务；仅在下表填写 GitHub 用户名，不填写姓名。PR 归属和审批按 GitHub 实际记录：E 已审批 #3、#8、#10、#11，并发起本报告的 [PR #9](https://github.com/S1mpleWind/sbSE-lab1/pull/9)，已由 S1mpleWind 审批并于 2026-10-24 19:38:15（UTC+8）合入。B 的 #6、#7 是按 O2 要求保留未合并的实验 PR，不计入已合入贡献；#8 是其已合入的 O2 报告 PR。C 的 #10 为已合入的 O1 镜像工作流实现，#11 为已经 E 审批并于 2026-10-25 00:40:58（UTC+8）合入的线上证据文档 PR；线上镜像已随 v1.0.2 发布。D 的 #5 是任务 6 的补充证据 PR。五位成员均已满足至少一个本人发起并合入 PR 的要求。
 
 | GitHub 用户名 | 发起并合入的 PR 编号 | 审批过的 PR 编号 |
 |---|---|---|
-| S1mpleWind | [#1](https://github.com/S1mpleWind/sbSE-lab1/pull/1) | [#2](https://github.com/S1mpleWind/sbSE-lab1/pull/2) |
+| S1mpleWind | [#1](https://github.com/S1mpleWind/sbSE-lab1/pull/1) | [#2](https://github.com/S1mpleWind/sbSE-lab1/pull/2)、[#9](https://github.com/S1mpleWind/sbSE-lab1/pull/9) |
 | wgy2006 | [#2](https://github.com/S1mpleWind/sbSE-lab1/pull/2)、[#8](https://github.com/S1mpleWind/sbSE-lab1/pull/8) | [#1](https://github.com/S1mpleWind/sbSE-lab1/pull/1)、[#4](https://github.com/S1mpleWind/sbSE-lab1/pull/4)、[#5](https://github.com/S1mpleWind/sbSE-lab1/pull/5) |
-| AllenTwillight05 | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3)、[#10](https://github.com/S1mpleWind/sbSE-lab1/pull/10) | 暂无已提交的 APPROVED 记录 |
+| AllenTwillight05 | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3)、[#10](https://github.com/S1mpleWind/sbSE-lab1/pull/10)、[#11](https://github.com/S1mpleWind/sbSE-lab1/pull/11) | 暂无已提交的 APPROVED 记录 |
 | yollsplus | [#4](https://github.com/S1mpleWind/sbSE-lab1/pull/4)、[#5](https://github.com/S1mpleWind/sbSE-lab1/pull/5) | 暂无已提交的 APPROVED 记录 |
-| yangjunqiqq | 暂无已合入；已发起最终报告 [#9](https://github.com/S1mpleWind/sbSE-lab1/pull/9)，待审批并合入 | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3)、[#8](https://github.com/S1mpleWind/sbSE-lab1/pull/8)、[#10](https://github.com/S1mpleWind/sbSE-lab1/pull/10) |
+| yangjunqiqq | [#9](https://github.com/S1mpleWind/sbSE-lab1/pull/9)（最终报告，已合入） | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3)、[#8](https://github.com/S1mpleWind/sbSE-lab1/pull/8)、[#10](https://github.com/S1mpleWind/sbSE-lab1/pull/10)、[#11](https://github.com/S1mpleWind/sbSE-lab1/pull/11) |
 
 具体分工与工作内容（按提供的图片）：
 
@@ -392,6 +397,6 @@ O3 迁移说明与验证（材料更新于 2026-10-21）：
 |---|---|---|---|
 | S1mpleWind（组长） | Task 0–3、Task 4 第一轮 | 负责本地基线、仓库与成员、CI 和规则集；第一轮引入现有测试能发现的周次缺陷，经历 CI 失败、修复、审批与合入，完成直接推送拒绝验证与第一轮时间记录 | [#1](https://github.com/S1mpleWind/sbSE-lab1/pull/1)、第 2、3、5 节；任务 0 的完整前后对照见第 2 节补测 |
 | wgy2006 | Task 4 第二轮、O2 | 找到现有测试未覆盖的单节课缺陷，完成“通过—补测试失败—修复通过”的三阶段演练及本地验证，保留新增测试；另完成 O2 缓存对照实验与已记录的审批 | [#2](https://github.com/S1mpleWind/sbSE-lab1/pull/2)、[#8](https://github.com/S1mpleWind/sbSE-lab1/pull/8)、第 3、5、7 节 |
-| AllenTwillight05 | Task 5、O1 | 编写 `release.yml`，验证 Release Gate，发布 v1.0.0；增加复用 Release 附件的 GHCR 镜像 job，完成本地容器验证，线上镜像证据待新版本发布生成 | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3)、[#10](https://github.com/S1mpleWind/sbSE-lab1/pull/10)、release #1/#2、v1.0.0、第 7 节 |
+| AllenTwillight05 | Task 5、O1 | 编写 `release.yml`，验证 Release Gate，发布 v1.0.0；增加复用 Release 附件的 GHCR 镜像 job，完成本地容器验证与 v1.0.2 线上镜像发布、按 digest 运行及匿名拉取验证，补齐线上验收记录 | [#3](https://github.com/S1mpleWind/sbSE-lab1/pull/3)、[#10](https://github.com/S1mpleWind/sbSE-lab1/pull/10)、[#11](https://github.com/S1mpleWind/sbSE-lab1/pull/11)（均已合入）、release #1/#2/#4、v1.0.0、v1.0.2、第 7 节 |
 | yollsplus | Task 6 | 提交文档小改动 PR，发布 v1.0.1，完成双版本追溯、运行、旧附件复校验与回退，并补充服务器复核记录 | [#4](https://github.com/S1mpleWind/sbSE-lab1/pull/4)、[#5](https://github.com/S1mpleWind/sbSE-lab1/pull/5)、release #3、第 4 节 |
-| yangjunqiqq | Task 7、全部文档 | 完成可重复构建补测、任务 0 缺失字段补测、CI 重跑比较、GitHub 时间与审批统计；汇总实验记录及选做材料，撰写四道分析题和实验结论，整理 LAB1.md；审批发布工作流、O2 报告与 O1 镜像工作流 PR | 最终报告 [#9](https://github.com/S1mpleWind/sbSE-lab1/pull/9) 已发起，待审批并合入，暂不计作已合入贡献 |
+| yangjunqiqq | Task 7、全部文档 | 完成可重复构建补测、任务 0 缺失字段补测、CI 重跑比较、GitHub 时间与审批统计；汇总实验记录及选做材料，撰写四道分析题和实验结论，整理 LAB1.md；审批发布工作流、O2 报告、O1 镜像工作流与线上证据文档 PR | 最终报告 [#9](https://github.com/S1mpleWind/sbSE-lab1/pull/9) 已经他人审批并合入 |

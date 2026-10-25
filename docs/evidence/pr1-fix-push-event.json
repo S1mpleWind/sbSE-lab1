@@ -1,0 +1,26 @@
+{
+  "id": "24253948738",
+  "type": "PushEvent",
+  "actor": {
+    "id": 182383794,
+    "login": "S1mpleWind",
+    "display_login": "S1mpleWind",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/S1mpleWind",
+    "avatar_url": "https://avatars.githubusercontent.com/u/182383794?"
+  },
+  "repo": {
+    "id": 1421655523,
+    "name": "S1mpleWind/sbSE-lab1",
+    "url": "https://api.github.com/repos/S1mpleWind/sbSE-lab1"
+  },
+  "payload": {
+    "repository_id": 1421655523,
+    "push_id": 46680381492,
+    "ref": "refs/heads/test/gate-round1",
+    "head": "54724f5dd965acd4718ea0c797f85a00402e7c8c",
+    "before": "619e544a5a724ed04c4ff48a83692966e776bcd1"
+  },
+  "public": true,
+  "created_at": "2026-10-16T05:37:27Z"
+}
