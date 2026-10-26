@@ -1,0 +1,17 @@
+make package VERSION=1.0.0 BUILD_NO=1
+diff ~/BUILD_INFO.first $P/BUILD_INFO && echo "BUILD_INFO 没有变化"
+sha256sum $P/enroll-conflict
+go version -m $P/enroll-conflict | grep vcs
+git checkout -- conflict.go             # 撤销刚才的改动
+mkdir -p dist/enroll-conflict_1.0.0_linux_amd64
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-X main.version=1.0.0 -X main.commit=7b63b41c13f061439997b0e6e4eaa2af922a7aa1 -X main.buildNo=1" -o dist/enroll-conflict_1.0.0_linux_amd64/enroll-conflict .
+printf 'name=%s\nversion=%s\nbuild_no=%s\nrun_id=%s\ncommit=%s\ngo=%s\n' \
+        'enroll-conflict' '1.0.0' '1' 'local' '7b63b41c13f061439997b0e6e4eaa2af922a7aa1' "$(go env GOVERSION)" > dist/enroll-conflict_1.0.0_linux_amd64/BUILD_INFO
+tar --sort=name --owner=0 --group=0 --numeric-owner --mtime=@0 -C dist -cf - enroll-conflict_1.0.0_linux_amd64 | gzip -n > dist/enroll-conflict_1.0.0_linux_amd64.tar.gz
+cd dist && sha256sum enroll-conflict_1.0.0_linux_amd64.tar.gz > enroll-conflict_1.0.0_linux_amd64.tar.gz.sha256
+BUILD_INFO 没有变化
+4abc817eb94bec30525e33e87e60dfee242dc55aaad78234e085d1fad55668c9  dist/enroll-conflict_1.0.0_linux_amd64/enroll-conflict
+        build   vcs=git
+        build   vcs.revision=7b63b41c13f061439997b0e6e4eaa2af922a7aa1
+        build   vcs.time=2026-10-12T16:26:07Z
+        build   vcs.modified=true

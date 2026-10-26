@@ -60,7 +60,7 @@ build vcs.modified=true
 | 项 | 链接或文本 |
 |---|---|
 | 规则集里启用的规则 | [Main Branch Rule](https://github.com/S1mpleWind/sbSE-lab1/rules/25219306)，Active，作用于默认分支；Restrict deletions（`deletion`）、Block force pushes（`non_fast_forward`）、Require a pull request before merging（1 人审批）、Require status checks to pass（必需检查 `ci`，来源 GitHub Actions）。组长直接推送 main 同样被门禁拒绝，验证输出见下方 |
-| 组长直接 `git push origin main` 被拒的终端输出 | 空提交 `a14b654` 推送 main 时收到 `GH013`，提示必须经 PR 且必需检查 `ci` 未满足，远程拒绝该次推送。关键输出见下方 |
+| 组长直接 `git push origin main` 被拒的终端输出 | 空提交 `a14b654` 推送 main 时收到 `GH013`，提示必须经 PR 且必需检查 `ci` ，未满足，远程拒绝该次推送。关键输出见下方 |
 | 第一轮：失败的 PR 运行 | [PR #1](https://github.com/S1mpleWind/sbSE-lab1/pull/1)，[ci #2](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/38856650142)，head `619e544a5a724ed04c4ff48a83692966e776bcd1`。将 `weeksOverlap` 的非每周分支改为总返回 `true`，现有“单周对双周不冲突”用例及 HTTP 接口测试失败 |
 | 第一轮：修复后通过的 PR 运行 | [ci #3](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/38856745614)，修复提交 `54724f5dd965acd4718ea0c797f85a00402e7c8c`，恢复 `return a == b`，所有检查通过 |
 | 第一轮：合入 main 后的运行（含制品） | [ci #4](https://github.com/S1mpleWind/sbSE-lab1/actions/runs/38857824225)，main 的 squash 提交 `34d9e65b2af66ab481d4504f384d34f2ba27df7a`；Package、Print checksums、Upload artifact 均成功，制品名为 `build-34d9e65b2af66ab481d4504f384d34f2ba27df7a-4`，保留 14 天 |
