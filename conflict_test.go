@@ -2,7 +2,7 @@ package main
 
 import "testing"
 
-#aaaaaaa
+// aaaaaaa
 func TestConflicts(t *testing.T) {
 	mon := func(start, end int, w Weeks) Section {
 		return Section{Weekday: 1, Start: start, End: end, Weeks: w}
