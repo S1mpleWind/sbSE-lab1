@@ -1,0 +1,35 @@
+=== Task 4 第一轮：PR 信息 ===
+PR 编号：1
+PR 标题：test: add week overlap coverage
+PR 链接：https://github.com/S1mpleWind/sbSE-lab1/pull/1
+源分支：test/gate-round1
+PR 创建时间（UTC）：2026-10-16T05:36:19Z
+PR 状态：open
+
+=== 第一次 CI（失败） ===
+运行 ID：38856650142
+运行链接：https://github.com/S1mpleWind/sbSE-lab1/actions/runs/38856650142
+运行结果：failure
+创建时间（UTC）：2026-10-16T05:36:24Z
+Job 开始时间（UTC）：2026-10-16T05:36:27Z
+Job 完成时间（UTC）：2026-10-16T05:36:39Z
+创建 → 开始：3 秒（0.05 分钟）
+开始 → 完成：12 秒（0.20 分钟）
+创建 → 完成：15 秒（0.25 分钟）
+
+=== 修复 Commit ===
+Commit SHA：54724f5dd965acd4718ea0c797f85a00402e7c8c
+Commit 链接：https://github.com/S1mpleWind/sbSE-lab1/commit/54724f5dd965acd4718ea0c797f85a00402e7c8c
+Commit 时间（UTC）：2026-10-16T05:37:23Z
+未找到 PR synchronize 事件
+
+=== 第二次 CI（成功） ===
+运行 ID：38856745614
+运行链接：https://github.com/S1mpleWind/sbSE-lab1/actions/runs/38856745614
+运行结果：success
+创建时间（UTC）：2026-10-16T05:37:32Z
+Job 开始时间（UTC）：2026-10-16T05:37:34Z
+Job 完成时间（UTC）：2026-10-16T05:37:42Z
+创建 → 开始：2 秒（0.03 分钟）
+开始 → 完成：8 秒（0.13 分钟）
+创建 → 完成：10 秒（0.17 分钟）

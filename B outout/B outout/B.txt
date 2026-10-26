@@ -1,0 +1,91 @@
+B：Task 4 第二轮实验记录
+
+GitHub 用户名：wgy2006
+仓库：https://github.com/S1mpleWind/sbSE-lab1
+PR：https://github.com/S1mpleWind/sbSE-lab1/pull/2
+分支：test/gate-round2-single-period
+起点：A 的 PR #1 已合并，main 提交 34d9e65b2af66ab481d4504f384d34f2ba27df7a。
+PR 创建时间：2026-10-16 14:18:08 +0800
+当前进度：三阶段演练已完成，等待另一位组员审批并 squash 合并。
+本记录的时间均为北京时间（UTC+08:00）。
+
+缺陷和测试遗漏
+
+Section 的 Start、End 都包含在时段内，所以开始第 2 节、结束第 2 节表示一节课，应当合法。
+第一阶段把 conflict.go 中的 s.End < s.Start 改成 s.End <= s.Start，导致 Valid() 错误地拒绝单节课。
+原有 TestValid 的合法样例是第 1～2 节，没有检查 Start == End；接口测试的合法输入也都跨两节或以上。因此，错误代码仍能通过原有测试。
+新增 TestValidSinglePeriod 使用周三第 2～2 节的输入，分别检查 all、odd、even 三种合法周次，要求 Valid() 返回 true。
+
+三阶段 CI 记录
+
+只引入缺陷，原有测试通过
+提交号：366876350af7390fc59a4ee4d51474e675287137
+提交链接：https://github.com/S1mpleWind/sbSE-lab1/commit/366876350af7390fc59a4ee4d51474e675287137
+Actions：ci #5，https://github.com/S1mpleWind/sbSE-lab1/actions/runs/38860438084
+结果：success
+ci job 开始：2026-10-16 14:18:13 +0800
+ci job 结束：2026-10-16 14:18:30 +0800
+Run tests 结果：success
+
+保留缺陷并补测试，新增测试失败
+提交号：90546e77aa31c5d985ac6ef3ee349c0e6287b70a
+提交链接：https://github.com/S1mpleWind/sbSE-lab1/commit/90546e77aa31c5d985ac6ef3ee349c0e6287b70a
+Actions：ci #6，https://github.com/S1mpleWind/sbSE-lab1/actions/runs/38860537459
+结果：failure
+ci job 开始：2026-10-16 14:19:17 +0800
+ci job 结束：2026-10-16 14:19:27 +0800
+Run tests 结果：failure
+
+恢复正确判断，保留测试后通过
+提交号：f3c6600aadc702f12064c6eb6bcffd43a1f6e77e
+提交链接：https://github.com/S1mpleWind/sbSE-lab1/commit/f3c6600aadc702f12064c6eb6bcffd43a1f6e77e
+Actions：ci #7，https://github.com/S1mpleWind/sbSE-lab1/actions/runs/38860647442
+结果：success
+ci job 开始：2026-10-16 14:20:27 +0800
+ci job 结束：2026-10-16 14:20:38 +0800
+Run tests 结果：success
+
+门禁观察
+
+main 的规则要求至少一位组员审批，并要求 ci 状态检查通过。
+第一阶段 ci 成功，自动测试没有发现错误；当时 PR 仍在等待人工审批，不能把它理解为所有合并条件都已满足。
+第二阶段 ci 失败，失败步骤是 Run tests，PR 的 mergeStateStatus 为 BLOCKED。TestValidSinglePeriod/all、odd、even 均报告单节课应当合法。
+第三阶段 ci 成功。最终与起点 main 相比，只在 conflict_test.go 增加了 11 行测试，conflict.go 已恢复原样。
+
+本地验证
+
+环境：macOS arm64，Go 1.26.9。
+命令：make fmt-check vet test
+正式推送前，在独立副本中依次检查了原始代码、错误代码配原有测试、错误代码配新增测试、修复后的代码配新增测试，退出码依次为 0、0、2、0。
+最终分支再次执行同一命令，退出码为 0。GitHub CI 在 ubuntu-24.04、Go 1.26.9 上运行。
+
+最终本地输出：
+go vet ./...
+go test -count=1 ./...
+ok  	enroll-conflict	0.488s
+
+新增测试发现错误时的本地输出：
+go vet ./...
+go test -count=1 ./...
+--- FAIL: TestValidSinglePeriod (0.00s)
+    --- FAIL: TestValidSinglePeriod/all (0.00s)
+        conflict_test.go:61: 单节课时段应当合法：{ID: Weekday:3 Start:2 End:2 Weeks:all}
+    --- FAIL: TestValidSinglePeriod/odd (0.00s)
+        conflict_test.go:61: 单节课时段应当合法：{ID: Weekday:3 Start:2 End:2 Weeks:odd}
+    --- FAIL: TestValidSinglePeriod/even (0.00s)
+        conflict_test.go:61: 单节课时段应当合法：{ID: Weekday:3 Start:2 End:2 Weeks:even}
+FAIL
+FAIL	enroll-conflict	0.353s
+FAIL
+make: *** [test] Error 1
+
+合并与交接
+
+尚未合并。另一位组员需要在 PR #2 提交 Approve，再使用 Squash and merge。
+仓库未启用自动合并。合并后的 main CI、制品链接和合并时间需要在合并后补入本记录。
+E 可将缺陷说明和三次 Actions 链接填入 LAB1.md 第 3 节，将本人 PR 和审批记录填入第 8 节。CI 时长可从附带的 jobs JSON 中核对。
+现场说明：原有测试没有覆盖单节课这个合法边界，CI 因而漏过了错误。补充该场景后，相同错误使测试失败。修复判断后，新测试保留下来，后续再出现同类错误时就能检测出来。
+
+附件说明
+
+B-evidence.zip 包含三阶段的 CI 日志、运行与 job 数据、各阶段 PR 状态、规则记录、本地预演输出、提交记录和最终补丁。CI 日志和 JSON 保留原始内容。
